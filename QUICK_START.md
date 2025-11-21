@@ -6,7 +6,7 @@ Get up and running with the Super Recce Training repository in 5 minutes.
 
 ```bash
 # Automated setup (recommended)
-./scripts/setup.sh  
+./scripts/setup.sh
 ```
 
 **What this does:**
