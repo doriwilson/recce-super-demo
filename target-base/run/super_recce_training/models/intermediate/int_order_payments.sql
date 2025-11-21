@@ -4,7 +4,7 @@
     
 
     create  table
-      "super_training"."dev"."int_order_payments__dbt_tmp"
+      "super_training"."prod"."int_order_payments__dbt_tmp"
   
     as (
       -- int_order_payments.sql
@@ -12,7 +12,7 @@
 -- This creates a one-to-one relationship between orders and payment totals
 
 with payments as (
-    select * from "super_training"."dev"."stg_payments"
+    select * from "super_training"."prod"."stg_payments"
 ),
 
 aggregated as (

@@ -12,15 +12,15 @@
 
 
 with orders as (
-    select * from "super_training"."dev"."stg_orders"
+    select * from "super_training"."prod"."stg_orders"
 ),
 
 customers as (
-    select * from "super_training"."dev"."stg_customers"
+    select * from "super_training"."prod"."stg_customers"
 ),
 
 payments as (
-    select * from "super_training"."dev"."int_order_payments"
+    select * from "super_training"."prod"."int_order_payments"
 ),
 
 final as (

@@ -1,6 +1,6 @@
 
   
-  create view "super_training"."dev"."stg_orders__dbt_tmp" as (
+  create view "super_training"."prod"."stg_orders__dbt_tmp" as (
     -- stg_orders.sql
 -- Staging model for order data
 -- 
