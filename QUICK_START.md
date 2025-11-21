@@ -1,6 +1,6 @@
 # Quick Start Guide
 
-Get up and running in 5 minutes. This repository has pre-generated artifacts, so you just need to build the data and run Recce.
+Get up and running in 5 minutes. This repository has **pre-generated Recce state files**, so you just need to build the data and run Recce.
 
 ## Setup (One Time - 3 minutes)
 
@@ -29,8 +29,8 @@ git checkout pr1-incremental-filter
 # Build models (creates data for Recce to compare)
 dbt build
 
-# Run Recce to see the changes
-recce server
+# Run Recce to see the changes (uses pre-generated state file)
+recce server recce_state.json
 ```
 
 **What you'll see**: Recce shows row count differences (25 → 23 orders) and status distribution changes.
@@ -43,8 +43,8 @@ git checkout pr2-model-rename
 # Try to build (will fail - that's the point!)
 dbt build
 
-# Run Recce to see it catch the breaking change
-recce server
+# Run Recce to see it catch the breaking change (uses pre-generated state file)
+recce server recce_state.json
 ```
 
 **What you'll see**: Recce detects the missing `stg_orders` reference.
@@ -57,8 +57,8 @@ git checkout pr3-timestamp-logic
 # Build models
 dbt build
 
-# Run Recce
-recce server
+# Run Recce (uses pre-generated state file)
+recce server recce_state.json
 ```
 
 **What you'll see**: Recce shows timestamp value differences (dates shifted by 5 hours).
@@ -70,7 +70,7 @@ recce server
 - Updates models with your PR changes
 - Generates artifacts Recce uses for comparisons
 
-**Pre-generated artifacts** (`target-base/`) help with schema comparisons, but you still need `dbt build` for data value comparisons.
+**Pre-generated state files**: Each PR branch has a `recce_state.json` file that tells Recce how to compare to main. The `target-base/` directory (on main) contains base artifacts. You still need `dbt build` to create the actual data that Recce compares.
 
 ## Troubleshooting
 
