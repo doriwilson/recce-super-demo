@@ -8,31 +8,18 @@ A hands-on training repository for learning Recce with dbt and DuckDB. This proj
 
 ## Quick Start
 
-Get up and running in under 5 minutes:
+See [QUICK_START.md](./QUICK_START.md) for simple step-by-step instructions.
 
+**TL;DR:**
 ```bash
-# 1. Clone and navigate
-cd super-recce-training
-
-# 2. Set up Python environment (if not already done)
-python3 -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-
-# 3. Install dependencies
-pip install dbt-duckdb recce
-
-# 4. Set up profiles
-cp profiles.yml.example profiles.yml
-
-# 5. Run setup script (or manually run dbt commands)
+# Setup (one time)
 ./scripts/setup.sh
 
-# 6. Verify it works
+# Run a PR
+git checkout pr1-incremental-filter
 dbt build
+recce server
 ```
-
-**Expected time**: 3-5 minutes  
-**Expected result**: All models build successfully in <30 seconds
 
 ## Recce Cloud CI Setup
 
