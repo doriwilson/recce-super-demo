@@ -17,8 +17,8 @@ See [QUICK_START.md](./QUICK_START.md) for simple step-by-step instructions.
 
 # Run a PR
 git checkout pr1-incremental-filter
-dbt build
-recce server
+dbt build                    # Creates data for Recce to compare
+recce server recce_state.json # Uses pre-generated state file automatically
 ```
 
 ## What You'll Learn

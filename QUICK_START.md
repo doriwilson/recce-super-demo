@@ -67,13 +67,11 @@ git checkout pr1-incremental-filter
 # Build models with PR changes (creates data for Recce to compare)
 dbt build
 
-# Run Recce - state files are already generated!
-recce server
-# Or view the pre-generated state:
-recce run --state-file recce_state.json
+# Run Recce - automatically uses pre-generated state file!
+recce server recce_state.json
 ```
 
-**Note**: State files are pre-generated on all PR branches, so you can run Recce immediately without manual setup!
+**What happens**: Recce automatically compares your PR branch to main using the pre-generated state file. No manual setup needed!
 
 ## Troubleshooting
 
