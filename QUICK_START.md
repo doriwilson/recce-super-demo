@@ -7,6 +7,9 @@ Get up and running with the Super Recce Training repository in 5 minutes.
 ```bash
 # Automated setup (recommended)
 ./scripts/setup.sh
+
+# Activate virtual environment (do this once per terminal session)
+source venv/bin/activate  # On Windows: venv\Scripts\activate
 ```
 
 **What this does:**
@@ -16,7 +19,9 @@ Get up and running with the Super Recce Training repository in 5 minutes.
 - Builds main branch to **prod schema** (base data for comparisons)
 - Generates artifacts
 
-**Expected output**: All models build successfully to prod schema in <30 seconds
+**Expected output**: All models build successfully to prod schema <30 seconds
+
+**Note**: Activate the venv once per terminal session. You don't need to reactivate when switching branches!
 
 ## Running a PR (1 minute)
 
@@ -63,6 +68,11 @@ recce server recce_state.json
 - **Result**: True prod vs dev data comparison!
 
 ## Troubleshooting
+
+**"command not found: dbt" or "command not found: recce"**
+- Activate the virtual environment: `source venv/bin/activate`
+- You only need to do this once per terminal session (not when switching branches)
+- Look for `(venv)` in your terminal prompt to confirm it's active
 
 **"Profile 'super' not found"**
 - Run: `cp profiles.yml.example profiles.yml`
