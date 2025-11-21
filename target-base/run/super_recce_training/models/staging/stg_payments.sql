@@ -1,6 +1,6 @@
 
   
-  create view "super_training"."dev"."stg_payments__dbt_tmp" as (
+  create view "super_training"."prod"."stg_payments__dbt_tmp" as (
     -- stg_payments.sql
 -- Staging model for payment data
 

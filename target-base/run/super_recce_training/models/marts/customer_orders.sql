@@ -4,7 +4,7 @@
     
 
     create  table
-      "super_training"."dev"."customer_orders__dbt_tmp"
+      "super_training"."prod"."customer_orders__dbt_tmp"
   
     as (
       -- customer_orders.sql
@@ -12,7 +12,7 @@
 -- This demonstrates downstream dependencies on the orders model
 
 with orders as (
-    select * from "super_training"."dev"."orders"
+    select * from "super_training"."prod"."orders"
 ),
 
 aggregated as (
