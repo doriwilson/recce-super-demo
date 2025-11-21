@@ -75,7 +75,7 @@ This repository contains three strategic pull requests, each demonstrating a dif
 ### PR #2: Model Rename with Breaking Change
 **Branch**: `pr2-model-rename`  
 **Focus**: Breaking change detection  
-**Key Recce Features**: Breaking Change Analysis, Column-Level Lineage, Dependency Graph
+**Key Recce Features**: Impact Analysis, Column-Level Lineage, Dependency Graph
 
 ### PR #3: Timestamp Field Logic Change
 **Branch**: `pr3-timestamp-logic`  
@@ -185,6 +185,6 @@ For questions about this training:
 ---
 
 **Training Duration**: 45 minutes  
-**Prerequisites**: Basic dbt knowledge, Recce Cloud access  
+**Prerequisites**: Basic dbt knowledge
 **Environment**: Local DuckDB (no warehouse required)
 
