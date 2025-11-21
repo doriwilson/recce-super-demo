@@ -1,10 +1,12 @@
 
     
     
-    truncate table "super_training"."dev"."jaffle_shop_orders";
+    
+    create table "super_training"."prod"."jaffle_shop_orders" (id integer,user_id integer,order_date date,status text)
+  ;
     -- dbt seed --
     
-          COPY "super_training"."dev"."jaffle_shop_orders" FROM '/Users/doriwilson/Documents/Recce/recce-super-demo/seeds/jaffle_shop_orders.csv' (FORMAT CSV, HEADER TRUE, DELIMITER ',')
+          COPY "super_training"."prod"."jaffle_shop_orders" FROM '/Users/doriwilson/Documents/Recce/recce-super-demo/seeds/jaffle_shop_orders.csv' (FORMAT CSV, HEADER TRUE, DELIMITER ',')
         
 
 ;

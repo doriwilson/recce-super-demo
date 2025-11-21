@@ -3,7 +3,7 @@
 -- This creates a one-to-one relationship between orders and payment totals
 
 with payments as (
-    select * from "super_training"."dev"."stg_payments"
+    select * from "super_training"."prod"."stg_payments"
 ),
 
 aggregated as (

@@ -1,6 +1,6 @@
 
   
-  create view "super_training"."dev"."stg_customers__dbt_tmp" as (
+  create view "super_training"."prod"."stg_customers__dbt_tmp" as (
     -- stg_customers.sql
 -- Staging model for customer data
 -- This is a simple pass-through that will be referenced by downstream models
