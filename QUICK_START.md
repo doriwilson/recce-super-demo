@@ -2,6 +2,11 @@
 
 Get up and running with the Super Recce Training repository in 5 minutes.
 
+```bash
+# This does steps 1-3 automatically or you can do manually below
+./scripts/setup.sh  
+```
+
 ## Step 1: Initial Setup (2 minutes)
 
 ```bash
@@ -51,15 +56,13 @@ git add .
 git commit -m "Initial commit: base repository"
 
 # Create PR branches (see .github/PR_SETUP.md for details)
-# Or use the helper script:
-./scripts/setup.sh  # This does steps 1-3 automatically
 ```
 
 ## Step 5: Test a PR (1 minute)
 
 ```bash
 # Switch to PR #1
-git checkout -b pr1-incremental-filter
+git checkout pr1-incremental-filter
 
 # Copy PR changes
 cp pr-changes/pr1/orders.sql models/marts/orders.sql
