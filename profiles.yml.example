@@ -1,0 +1,30 @@
+# dbt profiles.yml for Super Recce Training
+# 
+# Copy this file to ~/.dbt/profiles.yml or place in project root as profiles.yml
+# 
+# This setup uses DuckDB with separate schemas for 'dev' and 'prod' environments.
+# In your real Snowflake setup, these would point to different databases/schemas.
+
+super:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: super_training.duckdb
+      schema: dev
+      # In production, this would be:
+      # type: snowflake
+      # account: your_account
+      # database: ANALYTICS_DEV
+      # schema: DBT_DEV
+      
+    prod:
+      type: duckdb
+      path: super_training.duckdb
+      schema: prod
+      # In production, this would be:
+      # type: snowflake
+      # account: your_account
+      # database: ANALYTICS_PROD
+      # schema: DBT_PROD
+

@@ -1,0 +1,61 @@
+name: 'super_recce_training'
+version: '1.0.0'
+config-version: 2
+
+# This project simulates extending a 14-model dbt lineage
+# from one channel (Google Hotel Ads) to two more (Kayak, Trivago)
+# using a modified Jaffle Shop example.
+
+profile: 'super'
+
+model-paths: ["models"]
+analysis-paths: ["analyses"]
+test-paths: ["tests"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+snapshot-paths: ["snapshots"]
+
+target-path: "target"
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+# Global configurations
+# In production, you'd have more granular configs per model/folder
+
+models:
+  super_recce_training:
+    # Staging models: materialized as views for speed
+    staging:
+      +materialized: view
+      +tags: ["staging"]
+    
+    # Intermediate models: tables for performance
+    intermediate:
+      +materialized: table
+      +tags: ["intermediate"]
+    
+    # Mart models: tables with incremental strategy where applicable
+    marts:
+      +materialized: table
+      +tags: ["marts"]
+      # PR #1 will demonstrate incremental materialization
+      # In production, you'd configure:
+      # +incremental_strategy: merge
+      # +unique_key: order_id
+
+# Seeds configuration
+seeds:
+  super_recce_training:
+    +quote_columns: false
+    +column_types:
+      id: integer
+      user_id: integer
+      order_date: date
+
+# Variables (if needed for channel expansion simulation)
+vars:
+  # In production, you'd have:
+  # channels: ['google_hotel_ads', 'kayak', 'trivago']
+  # timezone: 'UTC'
+

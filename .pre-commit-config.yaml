@@ -1,0 +1,23 @@
+# Pre-commit hooks for dbt formatting
+# Install with: pip install pre-commit && pre-commit install
+#
+# This ensures consistent SQL formatting across the repository.
+# Optional but recommended for maintaining code quality.
+
+repos:
+  - repo: https://github.com/sqlfluff/sqlfluff
+    rev: 2.3.5
+    hooks:
+      - id: sqlfluff-lint
+        args: ['--dialect', 'duckdb']
+      - id: sqlfluff-fix
+        args: ['--dialect', 'duckdb']
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files
+
