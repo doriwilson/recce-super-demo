@@ -21,16 +21,6 @@ dbt build
 recce server
 ```
 
-## Recce Cloud CI Setup
-
-This repository includes GitHub Actions workflows for automated Recce validation on PRs. To enable Recce Cloud CI:
-
-1. **Get your Recce Cloud API key** (you mentioned you already have access)
-2. **Add it to GitHub Secrets**: Settings → Secrets → `RECCE_API_KEY`
-3. **The workflow will automatically run** on every PR
-
-See [`.github/RECCE_CLOUD_SETUP.md`](.github/RECCE_CLOUD_SETUP.md) for detailed setup instructions.
-
 ## What You'll Learn
 
 This training addresses three critical validation scenarios you'll face when extending your dbt lineage:
