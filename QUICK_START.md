@@ -2,109 +2,85 @@
 
 Get up and running with the Super Recce Training repository in 5 minutes.
 
+## Setup (One Time - 3 minutes)
+
 ```bash
-# This does steps 1-3 automatically or you can do manually below
-./scripts/setup.sh  
+# Automated setup (recommended)
+./scripts/setup.sh
 ```
 
-## Step 1: Initial Setup (2 minutes)
+**What this does:**
+- Creates Python virtual environment
+- Installs dbt-duckdb and recce
+- Sets up profiles.yml
+- Builds main branch to **prod schema** (base data for comparisons)
+- Generates artifacts
+
+**Expected output**: All models build successfully to prod schema in <30 seconds
+
+## Running a PR (1 minute)
 
 ```bash
-# Clone or navigate to the repository
-cd super-recce-training
-
-# Create Python virtual environment
-python3 -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-
-# Install dependencies
-pip install -r requirements.txt
-# Or: pip install dbt-duckdb recce
-```
-
-## Step 2: Configure dbt (1 minute)
-
-```bash
-# Copy profiles template
-cp profiles.yml.example profiles.yml
-
-# Edit profiles.yml if needed (usually fine as-is)
-# The default uses local DuckDB - no warehouse needed!
-```
-
-## Step 3: Build Base Project (1 minute)
-
-```bash
-# Install dbt packages
-dbt deps
-
-# Load seed data
-dbt seed
-
-# Build all models
-dbt build
-```
-
-**Expected output**: All models build successfully in <30 seconds
-
-## Step 4: Create PR Branches (1 minute)
-
-```bash
-# Initialize git if not already done
-git init
-git add .
-git commit -m "Initial commit: base repository"
-
-# Create PR branches (see .github/PR_SETUP.md for details)
-```
-
-## Step 5: Test a PR (1 minute)
-
-```bash
-# Switch to PR #1
+# 1. Switch to any PR branch
 git checkout pr1-incremental-filter
 
-# Build models with PR changes (creates data for Recce to compare)
-dbt build
+# 2. Build to dev schema (creates dev data)
+dbt build --target dev
 
-# Run Recce - state files are already generated!
-recce server
-# Or view the pre-generated state:
-recce run --state-file recce_state.json
+# 3. Run Recce (compares dev to prod!)
+recce server recce_state.json
 ```
 
-**Note**: State files are pre-generated on all PR branches, so you can run Recce immediately without manual setup!
+**What happens:**
+- Recce compares your PR branch (dev schema) to main (prod schema)
+- Shows actual data differences: row counts, values, distributions
+- Pre-generated state files handle everything automatically!
+
+## All 3 PRs Work the Same Way
+
+```bash
+# PR #1: Incremental model changes
+git checkout pr1-incremental-filter
+dbt build --target dev
+recce server recce_state.json
+
+# PR #2: Breaking change detection
+git checkout pr2-model-rename
+dbt build --target dev
+recce server recce_state.json
+
+# PR #3: Timestamp validation
+git checkout pr3-timestamp-logic
+dbt build --target dev
+recce server recce_state.json
+```
+
+## Why `--target dev`?
+
+- **Main branch**: Built to `prod` schema (during setup)
+- **PR branches**: Build to `dev` schema
+- **Recce**: Queries both schemas for actual data comparison
+- **Result**: True prod vs dev data comparison!
 
 ## Troubleshooting
 
-**"Database file is locked"**
-- Close any other connections to the DuckDB file
-- Delete `super_training.duckdb` and rebuild
-
 **"Profile 'super' not found"**
-- Ensure `profiles.yml` exists in `~/.dbt/` or project root
-- Check that it matches `profiles.yml.example`
+- Run: `cp profiles.yml.example profiles.yml`
 
 **"No such table: jaffle_shop.orders"**
-- Run `dbt seed` first to load seed data
+- Run: `dbt seed` first
+
+**"Database file is locked"**
+- Close other connections or delete `super_training.duckdb` and rebuild
 
 ## Next Steps
 
-1. Review the [README.md](./README.md) for full documentation
-2. Work through each PR:
-   - [PR #1](./.github/pull_requests/pr1-incremental-filter.md): Incremental model changes
-   - [PR #2](./.github/pull_requests/pr2-model-rename.md): Breaking change detection
-   - [PR #3](./.github/pull_requests/pr3-timestamp-logic.md): Timestamp validation
-3. Use the [validation checklist](./.github/validation-checklist.md) for your real projects
-
-## Help
-
-- Full documentation: [README.md](./README.md)
-- PR setup guide: [.github/PR_SETUP.md](./.github/PR_SETUP.md)
-- Validation checklist: [.github/validation-checklist.md](./.github/validation-checklist.md)
+- Review [PR descriptions](.github/pull_requests/) for what each PR demonstrates
+- Use the [validation checklist](.github/validation-checklist.md) for your real projects
+- See [README.md](./README.md) for full documentation
 
 ---
 
 **Training Duration**: 45 minutes  
 **Setup Time**: <5 minutes  
-**Prerequisites**: Python 3.8+, Recce Cloud access
+**Prerequisites**: Python 3.8+
