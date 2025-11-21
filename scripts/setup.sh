@@ -48,13 +48,13 @@ dbt deps
 echo "🌱 Seeding database..."
 dbt seed
 
-# Build the project
-echo "🔨 Building dbt project..."
-dbt build
+# Build main branch to prod schema (base data for comparisons)
+echo "🔨 Building main branch to prod schema (base data for comparisons)..."
+dbt build --target prod
 
 # Generate artifacts for Recce
-echo "📊 Generating artifacts..."
-dbt compile
+echo "📊 Generating artifacts for prod..."
+dbt docs generate --target prod
 
 echo ""
 echo "✅ Setup complete!"
@@ -62,6 +62,7 @@ echo ""
 echo "Next steps:"
 echo "  1. Review the README.md for training instructions"
 echo "  2. Check out PR branches: git checkout pr1-incremental-filter"
-echo "  3. Run Recce: recce run"
+echo "  3. Build PR branch to dev: dbt build --target dev"
+echo "  4. Run Recce: recce server recce_state.json"
 echo ""
 
