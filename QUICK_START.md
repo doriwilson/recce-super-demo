@@ -64,15 +64,13 @@ git commit -m "Initial commit: base repository"
 # Switch to PR #1
 git checkout pr1-incremental-filter
 
-# Copy PR changes
-cp pr-changes/pr1/orders.sql models/marts/orders.sql
-
-# Rebuild
-dbt build
-
-# Run Recce comparison
-recce run
+# Run Recce - state files are already generated!
+recce server
+# Or view the pre-generated state:
+recce run --state-file recce_state.json
 ```
+
+**Note**: State files are pre-generated on all PR branches, so you can run Recce immediately without manual setup!
 
 ## Troubleshooting
 
