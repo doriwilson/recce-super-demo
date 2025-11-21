@@ -1,0 +1,11 @@
+
+    
+    
+    truncate table "super_training"."dev"."jaffle_shop_payments";
+    -- dbt seed --
+    
+          COPY "super_training"."dev"."jaffle_shop_payments" FROM '/Users/doriwilson/Documents/Recce/recce-super-demo/seeds/jaffle_shop_payments.csv' (FORMAT CSV, HEADER TRUE, DELIMITER ',')
+        
+
+;
+  
