@@ -3,7 +3,7 @@
 -- This demonstrates downstream dependencies on the orders model
 
 with orders as (
-    select * from "super_training"."dev"."orders"
+    select * from "super_training"."prod"."orders"
 ),
 
 aggregated as (
