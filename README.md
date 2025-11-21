@@ -15,10 +15,10 @@ See [QUICK_START.md](./QUICK_START.md) for simple step-by-step instructions.
 # Setup (one time)
 ./scripts/setup.sh
 
-# Run a PR
+# Run a PR (compares dev to prod data!)
 git checkout pr1-incremental-filter
-dbt build                    # Creates data for Recce to compare
-recce server recce_state.json # Uses pre-generated state file automatically
+dbt build --target dev       # Creates dev schema data
+recce server recce_state.json # Compares dev to prod!
 ```
 
 ## What You'll Learn
