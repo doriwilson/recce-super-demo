@@ -41,11 +41,13 @@ dbt deps
 # Load seed data
 dbt seed
 
-# Build all models
-dbt build
+# Build main branch to prod schema (base data for comparisons)
+dbt build --target prod
 ```
 
-**Expected output**: All models build successfully in <30 seconds
+**Expected output**: All models build successfully to prod schema in <30 seconds
+
+**Why prod?** This creates the base/production data that Recce compares against. PR branches will build to `dev` schema.
 
 ## Step 4: Create PR Branches (1 minute)
 
