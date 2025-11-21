@@ -24,17 +24,21 @@ dbt deps
 dbt seed
 ```
 
-### Step 2: Run Recce on Main Branch
+### Step 2: Build Database and Run Recce on Main Branch
 
 ```bash
 # On main branch
 git checkout main
 
-# Start Recce server - it will use the pre-generated base artifacts
+# IMPORTANT: Build the database first (creates DuckDB with actual data)
+dbt build
+dbt docs generate
+
+# Now Recce can compare actual data values, not just schema
 recce server
 
-# Or view the state file directly
-recce run --state-file recce_base_state.json
+# The pre-generated artifacts in target-base/ help, but Recce still needs
+# to query the actual database for value diffs and profile diffs
 ```
 
 ### Step 3: Test PR #1 (Incremental Model Changes)
@@ -43,11 +47,17 @@ recce run --state-file recce_base_state.json
 # Switch to PR branch
 git checkout pr1-incremental-filter
 
-# Run Recce - state file is already generated!
+# IMPORTANT: Build the database with PR changes
+dbt build
+dbt docs generate
+
+# Now run Recce - it will compare actual data values
 recce server
 
-# The state file compares PR #1 to main automatically
-# No need to specify --target-base-path or generate artifacts manually!
+# Recce uses:
+# - target-base/ (from main) as baseline artifacts
+# - target/ (current PR) as comparison artifacts  
+# - Queries DuckDB to compare actual row counts, values, and distributions
 ```
 
 ### Step 4: Test PR #2 (Breaking Change Detection)
@@ -86,16 +96,25 @@ recce server
 
 When you run `recce server` or `recce run` on a PR branch:
 
-1. Recce automatically finds `target-base/` directory (base artifacts)
-2. Recce uses `target/` directory (current branch artifacts)
-3. If `recce_state.json` exists, Recce can load it directly
-4. No manual `--target-base-path` needed!
+1. **Artifacts**: Recce uses `target-base/` (from main) and `target/` (current PR) for schema/metadata
+2. **Data Comparison**: Recce queries the DuckDB database to compare actual data:
+   - Row counts (Value Diff)
+   - Column distributions (Profile Diff)  
+   - Actual values (not just schema)
+3. **Why build is needed**: The DuckDB file (`super_training.duckdb`) contains the actual data that Recce queries
+4. **State files**: Pre-generated to speed up startup, but Recce still queries the database for comparisons
 
 ## Troubleshooting
 
 **"Cannot load the manifest" error:**
 - Ensure you're on the correct branch
 - The `target-base/` directory should exist (it's committed to git)
+- Run `dbt compile` to generate target/ artifacts
+
+**"No data to compare" or empty results:**
+- **You must run `dbt build` first!** This creates the DuckDB database with actual data
+- Recce queries the database for value comparisons, not just the artifacts
+- Check that `super_training.duckdb` exists after running `dbt build`
 
 **"State file not found":**
 - State files are committed to each branch
@@ -104,6 +123,10 @@ When you run `recce server` or `recce run` on a PR branch:
 **Recce server won't start:**
 - Check that port 8000 is available
 - Try: `recce server --port 8001`
+
+**Value diffs show no differences:**
+- Ensure you've run `dbt build` on both main and the PR branch
+- The database must contain the actual data for Recce to compare
 
 ## For Instructors
 
