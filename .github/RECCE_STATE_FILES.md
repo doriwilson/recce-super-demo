@@ -1,104 +1,34 @@
-# Recce State Files Setup
+# Pre-Generated Recce State Files
 
-This repository includes pre-generated Recce state files so workshop participants can run `recce run` immediately without manual setup.
+This repository includes pre-generated Recce state files so you can run `recce server` immediately without manual setup.
 
-## What's Included
+## What's Pre-Generated
 
-### Main Branch
-- `target-base/` - Base artifacts (manifest.json, catalog.json, run_results.json) from main branch
-- `recce_base_state.json` - Base Recce state file for reference
-
-### PR Branches
-Each PR branch includes:
-- `recce_state.json` - Pre-generated state file comparing PR branch to main
-- `target/` - Generated artifacts for the PR branch
+- **`target-base/`** (main branch): Base dbt artifacts (manifest.json, catalog.json, etc.) from the main branch
+- **`recce_state.json`** (each PR branch): Pre-generated state file that tells Recce how to compare this PR to main
 
 ## How It Works
 
-### For Workshop Participants
+When you run `recce server recce_state.json`:
+1. Recce reads the state file to find base artifacts (`target-base/`)
+2. Recce compares current branch artifacts (`target/`) to base artifacts
+3. Recce queries the database (created by `dbt build`) for actual data comparisons
 
-**On Main Branch:**
+## What You Still Need to Do
+
+**You must run `dbt build`** on each branch because:
+- Recce compares actual data values (row counts, distributions)
+- `dbt build` creates the DuckDB database with the data Recce queries
+- Pre-generated state files handle the comparison setup, but data comes from `dbt build`
+
+## Simple Workflow
+
 ```bash
-# Build the database first (creates DuckDB with actual data)
-dbt build
-dbt docs generate
-
-# Now run Recce - it will use pre-generated artifacts
-recce server
-# Recce queries the DuckDB database for actual data comparisons
-```
-
-**On PR Branches:**
-```bash
+# On any PR branch
 git checkout pr1-incremental-filter
-
-# IMPORTANT: Build the database with PR changes
-dbt build
-dbt docs generate
-
-# Run Recce - it compares actual data values
-recce server
-# Uses target-base/ (main) and target/ (PR) artifacts
-# Queries DuckDB to compare row counts, values, and distributions
+dbt build                    # Creates data for Recce to compare
+recce server recce_state.json # Uses pre-generated state file
 ```
 
-### State Files Explained
-
-- **`recce_base_state.json`** (main branch): Base state for reference
-- **`recce_state.json`** (PR branches): Comparison state (PR vs main)
-- **`target-base/`** (main branch): Base environment artifacts
-
-## Regenerating State Files
-
-If you need to regenerate state files (e.g., after model changes):
-
-### Main Branch
-```bash
-git checkout main
-dbt build
-dbt docs generate
-mkdir -p target-base
-cp -r target/* target-base/
-recce run --target-base-path target-base --target-path target --output recce_base_state.json
-```
-
-### PR Branches
-```bash
-git checkout pr1-incremental-filter
-dbt build
-dbt docs generate
-recce run --target-base-path target-base --target-path target --output recce_state.json
-```
-
-## Why This Setup?
-
-1. **Pre-Generated Artifacts**: Base artifacts (`target-base/`) are ready, no need to generate on main
-2. **Consistent Comparisons**: Everyone compares against the same base artifacts
-3. **Faster Start**: No waiting for `dbt docs generate` on main (artifacts already there)
-4. **Data Comparisons**: Participants still run `dbt build` to create DuckDB database, which Recce queries for actual value/profile diffs
-5. **Workshop Ready**: `git checkout`, `dbt build`, `recce server` - that's it!
-
-## Important: Data vs Schema
-
-- **Artifacts** (manifest.json, catalog.json): Pre-generated, describe schema and metadata
-- **Database** (super_training.duckdb): Must be built with `dbt build` - contains actual data
-- **Recce uses both**: Artifacts for schema diffs, database queries for value diffs and profile diffs
-
-## File Sizes
-
-State files are JSON and typically small (<1MB). The `target-base/` directory contains dbt artifacts and may be larger, but it's essential for comparisons.
-
-## Troubleshooting
-
-**"Cannot load the manifest" error:**
-- Ensure `target-base/` exists on main branch
-- Run `dbt docs generate` to create catalog.json
-
-**State file outdated:**
-- Regenerate using commands above
-- Commit updated state files to git
-
----
-
-**Note**: These state files are committed to git to make the workshop seamless. In production, you'd typically generate these in CI/CD rather than committing them.
+That's it! The pre-generated state files mean you don't need to run `recce run` manually.
 

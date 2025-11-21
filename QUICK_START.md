@@ -64,6 +64,9 @@ git commit -m "Initial commit: base repository"
 # Switch to PR #1
 git checkout pr1-incremental-filter
 
+# Build models with PR changes (creates data for Recce to compare)
+dbt build
+
 # Run Recce - state files are already generated!
 recce server
 # Or view the pre-generated state:
@@ -105,4 +108,3 @@ recce run --state-file recce_state.json
 **Training Duration**: 45 minutes  
 **Setup Time**: <5 minutes  
 **Prerequisites**: Python 3.8+, Recce Cloud access
-

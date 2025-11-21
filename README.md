@@ -8,41 +8,18 @@ A hands-on training repository for learning Recce with dbt and DuckDB. This proj
 
 ## Quick Start
 
-Get up and running in under 5 minutes:
+See [QUICK_START.md](./QUICK_START.md) for simple step-by-step instructions.
 
+**TL;DR:**
 ```bash
-# 1. Clone and navigate
-cd super-recce-training
-
-# 2. Set up Python environment (if not already done)
-python3 -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-
-# 3. Install dependencies
-pip install dbt-duckdb recce
-
-# 4. Set up profiles
-cp profiles.yml.example profiles.yml
-
-# 5. Run setup script (or manually run dbt commands)
+# Setup (one time)
 ./scripts/setup.sh
 
-# 6. Verify it works
+# Run a PR
+git checkout pr1-incremental-filter
 dbt build
+recce server
 ```
-
-**Expected time**: 3-5 minutes  
-**Expected result**: All models build successfully in <30 seconds
-
-## Recce Cloud CI Setup
-
-This repository includes GitHub Actions workflows for automated Recce validation on PRs. To enable Recce Cloud CI:
-
-1. **Get your Recce Cloud API key** (you mentioned you already have access)
-2. **Add it to GitHub Secrets**: Settings → Secrets → `RECCE_API_KEY`
-3. **The workflow will automatically run** on every PR
-
-See [`.github/RECCE_CLOUD_SETUP.md`](.github/RECCE_CLOUD_SETUP.md) for detailed setup instructions.
 
 ## What You'll Learn
 
@@ -98,7 +75,7 @@ This repository contains three strategic pull requests, each demonstrating a dif
 ### PR #2: Model Rename with Breaking Change
 **Branch**: `pr2-model-rename`  
 **Focus**: Breaking change detection  
-**Key Recce Features**: Breaking Change Analysis, Column-Level Lineage, Dependency Graph
+**Key Recce Features**: Impact Analysis, Column-Level Lineage, Dependency Graph
 
 ### PR #3: Timestamp Field Logic Change
 **Branch**: `pr3-timestamp-logic`  
@@ -208,6 +185,6 @@ For questions about this training:
 ---
 
 **Training Duration**: 45 minutes  
-**Prerequisites**: Basic dbt knowledge, Recce Cloud access  
+**Prerequisites**: Basic dbt knowledge
 **Environment**: Local DuckDB (no warehouse required)
 
