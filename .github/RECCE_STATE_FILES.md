@@ -19,17 +19,27 @@ Each PR branch includes:
 
 **On Main Branch:**
 ```bash
-# Just run Recce - base artifacts are already there!
+# Build the database first (creates DuckDB with actual data)
+dbt build
+dbt docs generate
+
+# Now run Recce - it will use pre-generated artifacts
 recce server
-# Or
-recce run
+# Recce queries the DuckDB database for actual data comparisons
 ```
 
 **On PR Branches:**
 ```bash
 git checkout pr1-incremental-filter
+
+# IMPORTANT: Build the database with PR changes
+dbt build
+dbt docs generate
+
+# Run Recce - it compares actual data values
 recce server
-# The state file is already generated, comparing to main!
+# Uses target-base/ (main) and target/ (PR) artifacts
+# Queries DuckDB to compare row counts, values, and distributions
 ```
 
 ### State Files Explained
@@ -62,10 +72,17 @@ recce run --target-base-path target-base --target-path target --output recce_sta
 
 ## Why This Setup?
 
-1. **No Manual Setup**: Participants don't need to generate base artifacts
-2. **Consistent Comparisons**: Everyone compares against the same base
-3. **Faster Start**: No waiting for `dbt docs generate` on main
-4. **Workshop Ready**: Just `git checkout` and `recce server`
+1. **Pre-Generated Artifacts**: Base artifacts (`target-base/`) are ready, no need to generate on main
+2. **Consistent Comparisons**: Everyone compares against the same base artifacts
+3. **Faster Start**: No waiting for `dbt docs generate` on main (artifacts already there)
+4. **Data Comparisons**: Participants still run `dbt build` to create DuckDB database, which Recce queries for actual value/profile diffs
+5. **Workshop Ready**: `git checkout`, `dbt build`, `recce server` - that's it!
+
+## Important: Data vs Schema
+
+- **Artifacts** (manifest.json, catalog.json): Pre-generated, describe schema and metadata
+- **Database** (super_training.duckdb): Must be built with `dbt build` - contains actual data
+- **Recce uses both**: Artifacts for schema diffs, database queries for value diffs and profile diffs
 
 ## File Sizes
 
