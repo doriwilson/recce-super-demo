@@ -64,14 +64,14 @@ git commit -m "Initial commit: base repository"
 # Switch to PR #1
 git checkout pr1-incremental-filter
 
-# Build models with PR changes (creates data for Recce to compare)
-dbt build
+# Build models to dev schema (creates dev data for Recce to compare)
+dbt build --target dev
 
-# Run Recce - automatically uses pre-generated state file!
+# Run Recce - compares dev data to prod data!
 recce server recce_state.json
 ```
 
-**What happens**: Recce automatically compares your PR branch to main using the pre-generated state file. No manual setup needed!
+**What happens**: Recce compares your PR branch (dev schema) to main (prod schema) using actual data from both environments. The pre-generated state file handles the setup automatically!
 
 ## Troubleshooting
 
