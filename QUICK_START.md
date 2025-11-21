@@ -1,91 +1,87 @@
 # Quick Start Guide
 
-Get up and running with the Super Recce Training repository in 5 minutes.
+Get up and running in 5 minutes. This repository has pre-generated artifacts, so you just need to build the data and run Recce.
+
+## Setup (One Time - 3 minutes)
 
 ```bash
-# This does steps 1-3 automatically or you can do manually below
-./scripts/setup.sh  
-```
-
-## Step 1: Initial Setup (2 minutes)
-
-```bash
-# Clone or navigate to the repository
-cd super-recce-training
-
-# Create Python virtual environment
+# 1. Set up environment
 python3 -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-
-# Install dependencies
+source venv/bin/activate
 pip install -r requirements.txt
-# Or: pip install dbt-duckdb recce
-```
 
-## Step 2: Configure dbt (1 minute)
-
-```bash
-# Copy profiles template
+# 2. Configure dbt
 cp profiles.yml.example profiles.yml
 
-# Edit profiles.yml if needed (usually fine as-is)
-# The default uses local DuckDB - no warehouse needed!
-```
-
-## Step 3: Build Base Project (1 minute)
-
-```bash
-# Install dbt packages
+# 3. Install packages and load data
 dbt deps
-
-# Load seed data
 dbt seed
-
-# Build all models
-dbt build
 ```
 
-**Expected output**: All models build successfully in <30 seconds
+## Running the Training PRs
 
-## Step 4: Create PR Branches (1 minute)
-
-```bash
-# Initialize git if not already done
-git init
-git add .
-git commit -m "Initial commit: base repository"
-
-# Create PR branches (see .github/PR_SETUP.md for details)
-```
-
-## Step 5: Test a PR (1 minute)
+### PR #1: Incremental Model Changes
 
 ```bash
-# Switch to PR #1
+# Switch to PR branch
 git checkout pr1-incremental-filter
 
-# Copy PR changes
-cp pr-changes/pr1/orders.sql models/marts/orders.sql
-
-# Rebuild
+# Build models (creates data for Recce to compare)
 dbt build
 
-# Run Recce comparison
-recce run
+# Run Recce to see the changes
+recce server
 ```
+
+**What you'll see**: Recce shows row count differences (25 → 23 orders) and status distribution changes.
+
+### PR #2: Breaking Change Detection
+
+```bash
+git checkout pr2-model-rename
+
+# Try to build (will fail - that's the point!)
+dbt build
+
+# Run Recce to see it catch the breaking change
+recce server
+```
+
+**What you'll see**: Recce detects the missing `stg_orders` reference.
+
+### PR #3: Timestamp Validation
+
+```bash
+git checkout pr3-timestamp-logic
+
+# Build models
+dbt build
+
+# Run Recce
+recce server
+```
+
+**What you'll see**: Recce shows timestamp value differences (dates shifted by 5 hours).
+
+## Why Run `dbt build`?
+
+**Recce compares actual data values**, not just schemas. Running `dbt build`:
+- Creates the data that Recce compares
+- Updates models with your PR changes
+- Generates artifacts Recce uses for comparisons
+
+**Pre-generated artifacts** (`target-base/`) help with schema comparisons, but you still need `dbt build` for data value comparisons.
 
 ## Troubleshooting
 
-**"Database file is locked"**
-- Close any other connections to the DuckDB file
-- Delete `super_training.duckdb` and rebuild
-
 **"Profile 'super' not found"**
-- Ensure `profiles.yml` exists in `~/.dbt/` or project root
-- Check that it matches `profiles.yml.example`
+- Run: `cp profiles.yml.example profiles.yml`
 
 **"No such table: jaffle_shop.orders"**
-- Run `dbt seed` first to load seed data
+- Run: `dbt seed` to load seed data
+
+**"Cannot load the manifest"**
+- Run: `dbt build` first to generate artifacts
 
 ## Next Steps
 
