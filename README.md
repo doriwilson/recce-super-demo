@@ -2,16 +2,9 @@
 
 A hands-on training repository for learning Recce with dbt and DuckDB. This project simulates extending a 14-model dbt lineage from one channel (Google Hotel Ads) to two more (Kayak, Trivago) using a modified Jaffle Shop example.
 
-## 📚 Planning Documents
+## Getting Started
 
-Before starting, review these planning documents:
-
-- **[TRAINING_PLAN.md](./TRAINING_PLAN.md)**: Complete training plan with detailed scenarios, model mapping, and Recce features demonstrated
-- **[IMPLEMENTATION_GUIDE.md](./IMPLEMENTATION_GUIDE.md)**: Step-by-step instructions for implementing the 3 PRs using jaffle-shop models
-- **[PR_CHANGES_DETAILED.md](./PR_CHANGES_DETAILED.md)**: Exact code changes needed for each PR with before/after examples
-- **[TRAINING_SUMMARY.md](./TRAINING_SUMMARY.md)**: Quick reference guide for the training
-
-**New to this repository?** Start with [TRAINING_SUMMARY.md](./TRAINING_SUMMARY.md) for a quick overview.
+**New to this repository?** Start with [QUICK_START.md](./QUICK_START.md) for setup instructions.
 
 ## Quick Start
 
