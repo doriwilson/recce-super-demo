@@ -32,4 +32,8 @@ Thumbs.db
 
 # Recce
 .recce/
+# But keep state files and target-base for training
+!recce_state.json
+!recce_base_state.json
+!target-base/
 
