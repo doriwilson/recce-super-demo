@@ -48,20 +48,20 @@ if [ -d "venv" ]; then
     source venv/bin/activate
 fi
 
-# Rebuild models
-echo "🔨 Rebuilding dbt models..."
-dbt build
+# Rebuild models to dev schema
+echo "🔨 Rebuilding dbt models to dev schema..."
+dbt build --target dev
 
 # Generate artifacts
 echo "📊 Generating artifacts..."
-dbt compile
+dbt docs generate --target dev
 
 echo ""
 echo "✅ Switched to $BRANCH_NAME and rebuilt models"
 echo ""
 echo "Next steps:"
 echo "  1. Review changes: git diff main..$BRANCH_NAME"
-echo "  2. Run Recce comparison: recce run"
+echo "  2. Run Recce comparison: recce server recce_state.json"
 echo "  3. Review PR description: .github/pull_requests/pr${PR_NUMBER}-*.md"
 echo ""
 

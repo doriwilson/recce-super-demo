@@ -2,39 +2,43 @@
 
 This repository includes pre-generated Recce state files so you can run `recce server` immediately without manual setup.
 
-## What's Pre-Generated
+## What's Included
 
-- **`target-base/`** (main branch): Base dbt artifacts (manifest.json, catalog.json, etc.) from the main branch
-- **`recce_state.json`** (each PR branch): Pre-generated state file that tells Recce how to compare this PR to main
+- **`target-base/`** (main branch): Prod schema artifacts (manifest.json, catalog.json, etc.)
+- **`recce_state.json`** (each PR branch): Pre-generated state file comparing dev to prod
 
 ## How It Works
 
-When you run `recce server recce_state.json`:
-1. Recce reads the state file to find base artifacts (`target-base/`)
-2. Recce compares current branch artifacts (`target/`) to base artifacts
-3. Recce queries the database (created by `dbt build`) for actual data comparisons
+**Setup (one time):**
+```bash
+./scripts/setup.sh
+# This builds main to prod schema - prod data is now in database
+```
+
+**On any PR branch:**
+```bash
+git checkout pr1-incremental-filter
+dbt build --target dev       # Creates dev schema data
+recce server recce_state.json # Compares dev to prod!
+```
+
+**What Recce does:**
+1. Reads state file to find base artifacts (`target-base/`)
+2. Compares PR branch artifacts (`target/`) to base artifacts
+3. Queries **both** `prod` and `dev` schemas for actual data comparisons
+
+## Why This Works
+
+- **Prod schema**: Created during initial setup (main branch)
+- **Dev schema**: Created when you run `dbt build --target dev` on PR branches
+- **Both schemas**: Exist in the same DuckDB file (`super_training.duckdb`)
+- **Recce**: Queries both for real data comparisons (row counts, values, distributions)
 
 ## What You Still Need to Do
 
 **You must run `dbt build --target dev`** on each PR branch because:
 - Recce compares actual data values between prod and dev schemas
-- `dbt build --target dev` creates the dev schema data that Recce queries
-- Main branch is built to `prod` schema (pre-built in target-base/)
-- Pre-generated state files handle the comparison setup, but data comes from `dbt build`
-
-## Simple Workflow
-
-```bash
-# On any PR branch
-git checkout pr1-incremental-filter
-dbt build --target dev       # Creates dev schema data for Recce to compare
-recce server recce_state.json # Compares dev data to prod data (both in database!)
-```
-
-**What this does:**
-- Base (main): Uses `prod` schema data (pre-built)
-- Target (PR): Uses `dev` schema data (built with `dbt build --target dev`)
-- Recce queries both schemas for actual data comparisons (row counts, values, distributions)
+- `dbt build --target dev` creates the dev schema data
+- Prod data is already in database (from initial setup)
 
 That's it! The pre-generated state files mean you don't need to run `recce run` manually.
-
