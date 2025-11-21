@@ -21,6 +21,9 @@ Get up and running with the Super Recce Training repository in 5 minutes.
 ## Running a PR (1 minute)
 
 ```bash
+# 0. Activate virtual environment (if not already active)
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+
 # 1. Switch to any PR branch
 git checkout pr1-incremental-filter
 
@@ -39,6 +42,9 @@ recce server recce_state.json
 ## All 3 PRs Work the Same Way
 
 ```bash
+# Activate virtual environment first (if not already active)
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+
 # PR #1: Incremental model changes
 git checkout pr1-incremental-filter
 dbt build --target dev
@@ -63,6 +69,10 @@ recce server recce_state.json
 - **Result**: True prod vs dev data comparison!
 
 ## Troubleshooting
+
+**"command not found: dbt"**
+- Activate the virtual environment: `source venv/bin/activate`
+- The venv must be activated in each new terminal session
 
 **"Profile 'super' not found"**
 - Run: `cp profiles.yml.example profiles.yml`
