@@ -1,19 +1,11 @@
 -- orders.sql
 -- Final mart model: enriched orders with customer and payment data
 --
--- PR #1 CHANGES:
--- - Converted to incremental materialization
--- - Added status filter: only 'completed' and 'shipped' orders
--- - Added incremental logic with unique_key
+-- BASE VERSION (main branch):
+-- - All orders included (no filter)
+-- - Materialized as table
 --
--- This demonstrates how Recce validates incremental model changes.
--- In your real project, this simulates expanding channel filters.
-
-{{ config(
-    materialized='incremental',
-    unique_key='order_id',
-    on_schema_change='fail'
-) }}
+-- PR #1 will convert this to incremental and add status filter
 
 with orders as (
     select * from {{ ref('stg_orders') }}
@@ -39,8 +31,6 @@ final as (
     from orders
     left join customers on orders.customer_id = customers.customer_id
     left join payments on orders.order_id = payments.order_id
-    -- PR #1: Added filter to expand from 'completed' to include 'shipped'
-    where orders.status in ('completed', 'shipped')
 )
 
 select * from final
