@@ -171,7 +171,6 @@ See [`.github/validation-checklist.md`](./.github/validation-checklist.md) for a
 ## Resources
 
 - [Recce Documentation](https://docs.recce.dev)
-- [Recce Cloud Setup Guide](.github/RECCE_CLOUD_SETUP.md)
 - [dbt Documentation](https://docs.getdbt.com)
 - [DuckDB Documentation](https://duckdb.org/docs/)
 
@@ -180,7 +179,7 @@ See [`.github/validation-checklist.md`](./.github/validation-checklist.md) for a
 For questions about this training:
 - Check the PR descriptions in `.github/pull_requests/`
 - Review the troubleshooting section above
-- Consult Recce Cloud documentation
+- Consult [Recce Documentation](https://docs.recce.dev)
 
 ---
 
