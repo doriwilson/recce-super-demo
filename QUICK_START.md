@@ -70,16 +70,19 @@ source venv/bin/activate
 
 # PR #1: Incremental model changes
 ./scripts/switch-pr.sh 1
+dbt docs generate
 recce server recce_state.json
 # Press Ctrl+C to stop the server when done
 
 # PR #2: Breaking change detection
 ./scripts/switch-pr.sh 2
+dbt docs generate
 recce server recce_state.json
 # Press Ctrl+C to stop the server when done
 
 # PR #3: Timestamp validation
 ./scripts/switch-pr.sh 3
+dbt docs generate
 recce server recce_state.json
 # Press Ctrl+C to stop the server when done
 ```
