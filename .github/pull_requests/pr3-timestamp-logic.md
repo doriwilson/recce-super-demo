@@ -1,22 +1,22 @@
-# PR #3: Timestamp Field Logic Change
+# PR #3: UTC Date Conversion
 
 **Branch**: `pr3-timestamp-logic`  
-**Business Scenario**: Validating timestamp logic changes (EST → UTC conversion)  
-**Training Focus**: Value Diff and Profile Diff for timestamp validation
+**Business Scenario**: Validating date conversion from EST to UTC  
+**Training Focus**: Value Diff and Profile Diff for date conversion validation
 
 ## What This PR Demonstrates
 
-This PR simulates a timezone conversion scenario: you're standardizing timestamps from EST to UTC across your models. This is critical when extending to new channels that might use different timezones.
+This PR simulates a timezone conversion scenario: you're standardizing dates from EST to UTC across your models. This is critical when extending to new channels that might use different timezones.
 
 ### The Change
 
 We're modifying `stg_orders` to convert `order_date` from EST to UTC. This simulates:
-- Converting timezone-aware timestamps
+- Converting dates from EST timezone to UTC
 - Ensuring consistency across channels (Google, Kayak, Trivago)
-- Validating that uniqueness and surrogate keys aren't broken
+- Validating that date-based aggregations and keys aren't broken
 
 **Before**: `order_date` as-is (assumed EST)  
-**After**: `order_date` converted to UTC (adds 5 hours for EST → UTC)
+**After**: `order_date` converted to UTC date (EST midnight + 5 hours = UTC date)
 
 ### Why This Matters
 
@@ -31,16 +31,16 @@ Timestamp changes can have subtle but critical impacts:
 When you run `recce run` comparing this PR to main, you should see:
 
 ### 1. Value Diff
-- **Date Values**: All `order_date` values should shift by +5 hours (EST → UTC)
+- **Date Values**: Some `order_date` values may shift to the next day (EST → UTC conversion)
 - **Row Count**: Should remain the same (25 rows)
-- **Action**: Verify the timezone conversion is correct
+- **Action**: Verify the UTC date conversion is correct
 
 ### 2. Profile Diff
 - **order_date Column**:
-  - Min/max values will shift
-  - Distribution might change if dates cross day boundaries
+  - Min/max dates may shift if dates cross day boundaries
+  - Distribution might change if dates shift to next day
   - Null percentage should remain 0%
-- **Action**: Confirm the shift is exactly 5 hours and no dates are lost
+- **Action**: Confirm dates that cross midnight are handled correctly
 
 ### 3. Downstream Impact
 - **customer_orders Model**:
@@ -55,15 +55,15 @@ When you run `recce run` comparing this PR to main, you should see:
 ## Files Changed
 
 1. **`models/staging/stg_orders.sql`**
-   - Added timezone conversion logic
-   - Converts `order_date` from EST to UTC
-   - Uses DuckDB's timezone functions
+   - Added UTC date conversion logic
+   - Converts `order_date` from EST to UTC date
+   - Treats date as EST midnight, adds 5 hours, extracts UTC date
 
 ## Validation Checklist
 
 Use this checklist when reviewing this PR:
 
-- [ ] **Date Shift Verification**: All dates shifted by exactly 5 hours (EST → UTC)
+- [ ] **Date Shift Verification**: Dates converted from EST to UTC (may shift to next day)
 - [ ] **Row Count Unchanged**: Still 25 rows (no data loss)
 - [ ] **Uniqueness Maintained**: No duplicate rows introduced
 - [ ] **Downstream Impact**: Check `customer_orders.first_order_date` and `last_order_date`
@@ -84,8 +84,8 @@ dbt build
 recce run
 
 # 4. Review findings
-# - Check Value Diff: All dates should shift +5 hours
-# - Check Profile Diff: Date min/max should shift
+# - Check Value Diff: Dates converted to UTC (may shift to next day)
+# - Check Profile Diff: Date min/max may shift
 # - Verify row counts unchanged
 # - Check downstream date aggregations
 ```
@@ -98,14 +98,14 @@ In your actual project, this pattern applies when:
 - Fixing timezone bugs in existing models
 - Migrating from local time to UTC
 
-**Key Takeaway**: Always validate timestamp changes with Recce's Value Diff and Profile Diff. Timezone conversions can have subtle downstream effects that aren't immediately obvious.
+**Key Takeaway**: Always validate date/timezone conversions with Recce's Value Diff and Profile Diff. UTC conversions can have subtle downstream effects, especially when dates cross day boundaries.
 
 ## Technical Details
 
-The timezone conversion in this PR:
-- Assumes source data is in EST (UTC-5)
-- Converts to UTC by adding 5 hours
-- Uses DuckDB's `timestamp` functions
+The UTC date conversion in this PR:
+- Assumes source dates are in EST timezone
+- Converts to UTC by treating date as EST midnight, adding 5 hours, then extracting the date
+- Uses DuckDB's `timestamp` and `date` functions
 - In production, you'd use your warehouse's timezone functions (e.g., Snowflake's `CONVERT_TIMEZONE`)
 
 ## Edge Cases to Consider
@@ -129,7 +129,7 @@ After reviewing this PR:
 **Congratulations!** You've completed all three PR scenarios. You now understand:
 - ✅ Incremental model validation
 - ✅ Breaking change detection
-- ✅ Timestamp/timezone validation
+- ✅ UTC date conversion validation
 
 Apply these patterns to your real dbt project when extending to Kayak and Trivago channels!
 
