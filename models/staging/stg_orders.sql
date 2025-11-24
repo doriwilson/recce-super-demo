@@ -1,10 +1,9 @@
 -- stg_orders.sql
 -- Staging model for order data
 -- 
--- PR #3 CHANGES:
--- - Convert order_date from JST (Japan Standard Time, UTC+9) to UTC date
--- - JST is ahead of UTC, so dates shift backward (e.g., Jan 2 2AM JST = Jan 1 5PM UTC)
--- - This simulates timezone standardization across channels and creates visible date shifts
+-- IMPORTANT FOR TRAINING:
+-- - PR #2 will rename this model to staging_orders (breaking change demo)
+-- - PR #3 will modify the timestamp logic here (EST → UTC conversion demo)
 --
 -- This model stages raw order data and prepares it for downstream use.
 -- In your real project, this would handle channel-specific transformations.
@@ -17,11 +16,7 @@ renamed as (
     select
         id as order_id,
         user_id as customer_id,
-        -- PR #3: Convert order_date from JST (Japan Standard Time, UTC+9) to UTC date
-        -- JST is ahead of UTC, so dates can shift backward when converting to UTC
-        -- This creates visible date shifts for training purposes
-        -- Convert DATE to TIMESTAMP at JST timezone, then to UTC, then extract date
-        date((order_date::TIMESTAMP AT TIME ZONE 'Asia/Tokyo') AT TIME ZONE 'UTC') as order_date,
+        order_date,  -- <-- PR #3 will convert this from JST to UTC
         status
     from source
 )

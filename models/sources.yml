@@ -15,7 +15,7 @@ sources:
       - name: jaffle_shop_orders
         identifier: jaffle_shop_orders
         description: Raw order data
-        # PR #3 will convert order_date from EST to UTC date
+        # PR #3 will modify timestamp handling in stg_orders
       - name: jaffle_shop_payments
         identifier: jaffle_shop_payments
         description: Raw payment data
