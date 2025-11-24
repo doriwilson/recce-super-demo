@@ -3,7 +3,7 @@
 -- 
 -- IMPORTANT FOR TRAINING:
 -- - PR #2 will rename this model to staging_orders (breaking change demo)
--- - PR #3 will modify the timestamp logic here (EST → UTC conversion demo)
+-- - PR #3 will modify the timestamp logic here (JST → UTC conversion demo)
 --
 -- This model stages raw order data and prepares it for downstream use.
 -- In your real project, this would handle channel-specific transformations.
