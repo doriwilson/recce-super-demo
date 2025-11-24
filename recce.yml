@@ -1,5 +1,8 @@
 # Preset Checks
 # Please see https://docs.datarecce.io/features/preset-checks/
+# 
+# Note: Value diff and Profile diff require specific model/primary_key configuration,
+# so they're commented out. You can still run these checks manually in the Recce UI.
 checks:
 - name: Row count diff
   description: Check the row count diff for all table models.
@@ -9,3 +12,5 @@ checks:
 - name: Schema diff
   description: Check the schema diff for all nodes.
   type: schema_diff
+# Value diff and Profile diff can be run manually in the Recce UI for specific models
+# They require model and primary_key parameters, so they're not included as presets
