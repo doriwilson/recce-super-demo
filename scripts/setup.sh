@@ -48,21 +48,33 @@ dbt deps
 echo "🌱 Seeding database..."
 dbt seed
 
-# Build main branch to prod schema (base data for comparisons)
-echo "🔨 Building main branch to prod schema (base data for comparisons)..."
+# Build the project to prod schema (base for comparisons)
+echo "🔨 Building dbt project to prod schema..."
 dbt build --target prod
 
 # Generate artifacts for Recce
-echo "📊 Generating artifacts for prod..."
-dbt docs generate --target prod
+echo "📊 Generating artifacts..."
+dbt compile --target prod
+
+# Copy essential artifacts to target-base for Recce comparisons
+# Always update target-base on main branch (static baseline for training)
+echo "📋 Updating target-base artifacts (static baseline)..."
+mkdir -p target-base
+cp target/manifest.json target-base/ 2>/dev/null || true
+cp target/catalog.json target-base/ 2>/dev/null || true
+cp target/run_results.json target-base/ 2>/dev/null || true
+echo "   ✅ target-base/ artifacts updated (these are committed as static baseline)"
 
 echo ""
 echo "✅ Setup complete!"
 echo ""
+echo "⚠️  IMPORTANT: Activate the virtual environment in each new terminal:"
+echo "   source venv/bin/activate"
+echo ""
 echo "Next steps:"
-echo "  1. Review the README.md for training instructions"
+echo "  1. Activate venv: source venv/bin/activate"
 echo "  2. Check out PR branches: git checkout pr1-incremental-filter"
-echo "  3. Build PR branch to dev: dbt build --target dev"
+echo "  3. Build PR to dev: dbt build --target dev"
 echo "  4. Run Recce: recce server recce_state.json"
 echo ""
 

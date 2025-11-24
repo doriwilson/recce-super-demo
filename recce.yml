@@ -9,17 +9,3 @@ checks:
 - name: Schema diff
   description: Check the schema diff for all nodes.
   type: schema_diff
-- name: Value diff
-  description: Check value differences for all modified models, especially datetime fields.
-  type: value_diff
-  params:
-    select: state:modified,config.materialized:table
-- name: Profile diff
-  description: Check profile differences (min/max/distribution) for datetime columns and downstream aggregates.
-  type: profile_diff
-  params:
-    select: state:modified,config.materialized:table
-    # This will catch changes to min/max dates in downstream aggregates like:
-    # - customer_orders.first_order_date (min aggregation)
-    # - customer_orders.last_order_date (max aggregation)
-    # - Any daily/weekly aggregations based on order_date

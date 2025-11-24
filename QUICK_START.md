@@ -7,9 +7,6 @@ Get up and running with the Super Recce Training repository in 5 minutes.
 ```bash
 # Automated setup (recommended)
 ./scripts/setup.sh
-
-# Activate virtual environment (do this once per terminal session)
-source venv/bin/activate  # On Windows: venv\Scripts\activate
 ```
 
 **What this does:**
@@ -17,71 +14,130 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 - Installs dbt-duckdb and recce
 - Sets up profiles.yml
 - Builds main branch to **prod schema** (base data for comparisons)
-- Generates artifacts
+- Updates `target-base/` artifacts (static baseline, pre-committed)
 
-**Expected output**: All models build successfully to prod schema <30 seconds
+**Expected output**: All models build successfully to prod schema in <30 seconds
 
-**Note**: Activate the venv once per terminal session. You don't need to reactivate when switching branches!
+**Important**: The virtual environment must be activated in each new terminal session:
+```bash
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+```
 
-## Running a PR (1 minute)
+## Running a PR (2 options)
+
+### Option 1: Using Helper Script (Recommended)
 
 ```bash
-# 1. Switch to any PR branch
-git checkout pr1-incremental-filter
+# Activate virtual environment (if not already active)
+source venv/bin/activate
 
-# 2. Build to dev schema (creates dev data)
-dbt build --target dev
+# Switch to PR #1 and build automatically
+./scripts/switch-pr.sh 1
 
-# 3. Run Recce (compares dev to prod!)
+# Run Recce
 recce server recce_state.json
 ```
 
-**What happens:**
-- Recce compares your PR branch (dev schema) to main (prod schema)
-- Shows actual data differences: row counts, values, distributions
-- Pre-generated state files handle everything automatically!
+The script automatically:
+- Discards any uncommitted changes (clean demo state)
+- Switches to the PR branch
+- Builds models to dev schema
+- You're ready to run Recce!
+
+### Option 2: Manual Steps
+
+```bash
+# Activate virtual environment (if not already active)
+source venv/bin/activate
+
+# 1. Switch to PR branch (discards uncommitted changes)
+git checkout pr1-incremental-filter
+# If you have uncommitted changes, discard them:
+# git reset --hard HEAD
+
+# 2. Build to dev schema (creates dev data for comparison)
+dbt build --target dev
+
+# 3. Run Recce (uses pre-committed artifacts!)
+recce server recce_state.json
+```
 
 ## All 3 PRs Work the Same Way
 
 ```bash
+# Activate virtual environment first
+source venv/bin/activate
+
 # PR #1: Incremental model changes
-git checkout pr1-incremental-filter
-dbt build --target dev
+./scripts/switch-pr.sh 1
 recce server recce_state.json
 
 # PR #2: Breaking change detection
-git checkout pr2-model-rename
-dbt build --target dev
+./scripts/switch-pr.sh 2
 recce server recce_state.json
 
 # PR #3: Timestamp validation
-git checkout pr3-timestamp-logic
-dbt build --target dev
+./scripts/switch-pr.sh 3
 recce server recce_state.json
 ```
 
-## Why `--target dev`?
+## What's Pre-Generated vs What You Build
 
-- **Main branch**: Built to `prod` schema (during setup)
-- **PR branches**: Build to `dev` schema
-- **Recce**: Queries both schemas for actual data comparison
-- **Result**: True prod vs dev data comparison!
+**Pre-Generated (Already Committed):**
+- ✅ `target-base/` artifacts on main (prod schema metadata)
+- ✅ `target/` artifacts on each PR branch (dev schema metadata)
+- ✅ `recce_state.json` on each PR branch (comparison configuration)
+
+**You Must Build:**
+- 🔨 DuckDB database with **prod schema data** (done during setup)
+- 🔨 DuckDB database with **dev schema data** (done when switching to PR branch)
+
+**Why?** Recce needs:
+- Artifacts (metadata) → Pre-committed, tells Recce what to compare
+- Actual data → Must be built, Recce queries both schemas for real comparisons
+
+## How It Works
+
+1. **Setup**: Builds main branch to `prod` schema in DuckDB
+2. **Switch to PR**: Builds PR branch to `dev` schema in same DuckDB file
+3. **Recce**: Uses pre-committed artifacts + queries both `prod` and `dev` schemas
+4. **Result**: True data comparison showing row counts, values, distributions!
+
+## Switching Between Branches
+
+**Important for Demo**: This is a training repo - we don't preserve changes between branches.
+
+When switching branches:
+- **Uncommitted changes are automatically discarded** (clean demo state)
+- Use `./scripts/switch-pr.sh` for automatic cleanup
+- Or manually: `git reset --hard HEAD` before switching
+
+This ensures each PR branch starts in a clean state for consistent demos.
 
 ## Troubleshooting
 
-**"command not found: dbt" or "command not found: recce"**
+**"command not found: dbt"**
 - Activate the virtual environment: `source venv/bin/activate`
-- You only need to do this once per terminal session (not when switching branches)
-- Look for `(venv)` in your terminal prompt to confirm it's active
+- The venv must be activated in each new terminal session
 
 **"Profile 'super' not found"**
 - Run: `cp profiles.yml.example profiles.yml`
 
 **"No such table: jaffle_shop.orders"**
-- Run: `dbt seed` first
+- Run `./scripts/setup.sh` again to seed the database
 
 **"Database file is locked"**
 - Close other connections or delete `super_training.duckdb` and rebuild
+
+**"Cannot switch branch - uncommitted changes"**
+- Use `./scripts/switch-pr.sh` (automatically discards changes)
+- Or manually: `git reset --hard HEAD` then switch branches
+
+**"Address already in use" (port 8000)**
+- Another `recce server` is running. Find and kill it:
+  ```bash
+  lsof -ti:8000 | xargs kill -9
+  ```
 
 ## Next Steps
 

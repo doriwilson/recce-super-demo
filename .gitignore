@@ -3,6 +3,10 @@ target/
 dbt_packages/
 logs/
 profiles.yml
+# But allow target/ on PR branches for training (pre-generated artifacts)
+!target/manifest.json
+!target/catalog.json
+!target/run_results.json
 
 # Python
 __pycache__/
@@ -36,9 +40,4 @@ Thumbs.db
 !recce_state.json
 !recce_base_state.json
 !target-base/
-# Exclude regenerated/cache files from target-base
-target-base/partial_parse.msgpack
-target-base/index.html
-target-base/compiled/
-target-base/run/
 
