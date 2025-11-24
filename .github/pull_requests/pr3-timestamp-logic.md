@@ -78,17 +78,69 @@ Use this checklist when reviewing this PR:
 git checkout pr3-timestamp-logic
 
 # 2. Rebuild models
-dbt build
+dbt build --target dev
 
 # 3. Run Recce comparison
-recce run
+recce server recce_state.json
 
 # 4. Review findings
 # - Check Value Diff: Dates converted to UTC (may shift to next day)
 # - Check Profile Diff: Date min/max may shift
 # - Verify row counts unchanged
 # - Check downstream date aggregations
+
+# 5. Validate UTC conversion (optional but recommended)
+# Run the custom validation query to verify date shifts are only from UTC conversion
+dbt compile --select validate_utc_date_conversion
+# Then run the compiled SQL in DuckDB or Recce UI
 ```
+
+## Automatic Date Column Validation (Preset Check)
+
+Recce includes a **preset check** in `recce.yml` that automatically validates date columns in `customer_orders` whenever the model or its upstream dependencies change:
+
+**Preset Check: "Customer Orders Date Validation"**
+- **Type**: `value_diff`
+- **Model**: `customer_orders`
+- **Primary Key**: `customer_id`
+- **Focus**: `first_order_date` and `last_order_date` columns
+- **Triggers**: Automatically runs when:
+  - `customer_orders` model is modified
+  - Upstream models change (e.g., `stg_orders`, `orders`)
+
+**How it works:**
+1. When you run `recce server recce_state.json`, this check runs automatically
+2. It compares date values between `prod` and `dev` schemas
+3. Shows differences in the Recce UI
+4. You can filter to see only the date columns in the UI
+
+**To view results:**
+- Open Recce server: `recce server recce_state.json`
+- Navigate to "Preset Checks" → "Customer Orders Date Validation"
+- Review the value differences for `first_order_date` and `last_order_date`
+
+## Custom SQL Validation Query (Advanced)
+
+For additional validation logic (ensuring dates only shift 0 or +1 day), we've included a custom SQL query (`analyses/validate_utc_date_conversion.sql`):
+
+**What it checks:**
+- ✅ Dates only shift forward by 0 or 1 day (never backward)
+- ✅ No dates shift by more than 1 day
+- ✅ Order counts match between prod and dev
+- ✅ All shifts are consistent with EST→UTC conversion logic
+
+**How to run:**
+```bash
+# Compile the query
+dbt compile --select validate_utc_date_conversion
+
+# The compiled SQL is in target/compiled/super_recce_training/analyses/
+# Run it in DuckDB or copy into Recce's SQL query interface
+```
+
+See [analyses/README.md](../../analyses/README.md) for detailed instructions.
+
+**Note**: The preset check provides automatic comparison, while the custom SQL query adds validation logic to ensure shifts are within expected bounds.
 
 ## Real-World Application
 

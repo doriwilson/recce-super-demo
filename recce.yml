@@ -1,8 +1,5 @@
 # Preset Checks
 # Please see https://docs.datarecce.io/features/preset-checks/
-# 
-# Note: Value diff and Profile diff require specific model/primary_key configuration,
-# so they're commented out. You can still run these checks manually in the Recce UI.
 checks:
 - name: Row count diff
   description: Check the row count diff for all table models.
@@ -12,5 +9,13 @@ checks:
 - name: Schema diff
   description: Check the schema diff for all nodes.
   type: schema_diff
-# Value diff and Profile diff can be run manually in the Recce UI for specific models
-# They require model and primary_key parameters, so they're not included as presets
+- name: Customer Orders Date Validation
+  description: Validate UTC date conversion in customer_orders date columns. Automatically runs when customer_orders or its upstream dependencies (like stg_orders) change. Focuses on first_order_date and last_order_date to ensure dates only shift 0 or +1 day from EST→UTC conversion.
+  type: value_diff
+  params:
+    model: customer_orders
+    primary_key: customer_id
+    # This check will automatically run when:
+    # - customer_orders model is modified
+    # - Any upstream model (like stg_orders, orders) that affects customer_orders changes
+    # Recce will compare all columns, but you can focus on date columns in the UI
