@@ -27,7 +27,7 @@ This training addresses three critical validation scenarios:
 **See**: [PR #1](./.github/pull_requests/pr1-incremental-filter.md)
 
 ### 2. Assessing Downstream Impact of Renaming Models
-**Scenario**: Refactoring model names  
+**Scenario**: Refactoring model names & column name.
 **Learn**: How Recce's Breaking Change Analysis surfaces all dependencies  
 **See**: [PR #2](./.github/pull_requests/pr2-model-rename.md)
 

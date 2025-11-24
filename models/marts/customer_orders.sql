@@ -11,7 +11,7 @@ aggregated as (
         customer_id,
         first_name,
         last_name,
-        count(*) as order_count,
+        count(order_identification) as order_count,
         sum(amount) as total_spent,
         min(order_date) as first_order_date,
         max(order_date) as last_order_date

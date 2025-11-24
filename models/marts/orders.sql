@@ -9,11 +9,6 @@
 -- This demonstrates how Recce validates incremental model changes.
 -- In your real project, this simulates expanding channel filters.
 
-{{ config(
-    materialized='incremental',
-    unique_key='order_id',
-    on_schema_change='fail'
-) }}
 
 with orders as (
     select * from {{ ref('staging_orders') }}
@@ -29,7 +24,7 @@ payments as (
 
 final as (
     select
-        orders.order_id,
+        orders.order_id as order_identification,
         orders.customer_id,
         customers.first_name,
         customers.last_name,
