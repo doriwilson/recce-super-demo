@@ -48,13 +48,27 @@ if [ -d "venv" ]; then
     source venv/bin/activate
 fi
 
-# Rebuild models
-echo "🔨 Rebuilding dbt models..."
-dbt build
+# Install/update dbt packages first
+echo "📦 Installing dbt packages..."
+dbt deps
 
-# Generate artifacts
+# Try to build models (may fail for PR #2 which has intentional breaking change)
+echo "🔨 Rebuilding dbt models..."
+if dbt build --target dev 2>&1; then
+    echo "   ✅ Models built successfully"
+else
+    echo "   ⚠️  Build failed (this is expected for PR #2 - intentional breaking change)"
+    echo "   📊 Recce can still analyze the breaking change from existing artifacts"
+fi
+
+# Try to generate artifacts (may also fail for PR #2, but that's okay)
 echo "📊 Generating artifacts..."
-dbt compile
+if dbt compile --target dev 2>&1; then
+    echo "   ✅ Artifacts generated"
+else
+    echo "   ⚠️  Compilation failed (expected for PR #2)"
+    echo "   📊 Recce will use pre-committed artifacts to show the breaking change"
+fi
 
 echo ""
 echo "✅ Switched to $BRANCH_NAME and rebuilt models"
