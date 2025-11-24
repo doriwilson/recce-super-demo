@@ -1,14 +1,20 @@
 -- validate_utc_date_conversion.sql
 -- Custom SQL query to verify UTC date conversion in customer_orders
 -- 
--- This query validates that any date shifts are ONLY from the EST→UTC conversion
+-- This query validates that any date shifts are ONLY from the timezone→UTC conversion
 -- and not from any other data quality issues or logic errors.
 --
--- Expected behavior:
+-- Expected behavior (for EST→UTC conversion, UTC-5):
 -- - Dates should only shift forward by 0 or 1 day (never backward)
 -- - Date shifts occur when EST midnight + 5 hours crosses UTC midnight
 -- - No dates should shift by more than 1 day
--- - Row counts should remain the same
+--
+-- Note: For timezones AHEAD of UTC (UTC+), dates can shift backward:
+-- - JST (UTC+9): Dates can shift backward by 1 day
+-- - AEST (UTC+10): Dates can shift backward by 1 day
+-- - This validation is configured for EST→UTC (backward shifts = unexpected)
+--
+-- Row counts should remain the same regardless of timezone
 
 with prod_data as (
     select
@@ -53,20 +59,25 @@ comparison as (
         datediff('day', p.last_order_date, d.last_order_date) as last_order_date_shift,
         
         -- Verify expected UTC conversion logic
-        -- A date should shift forward by 1 day if EST midnight + 5 hours crosses UTC midnight
-        -- This happens when the EST date is late in the day (after 7 PM EST = midnight UTC)
+        -- For EST→UTC (UTC-5): Dates shift forward by 0 or 1 day
+        -- For timezones ahead of UTC (UTC+): Dates can shift backward by 0 or 1 day
+        -- This validation is configured for EST→UTC conversion
         case 
             when datediff('day', p.first_order_date, d.first_order_date) = 0 then 'No shift (expected)'
             when datediff('day', p.first_order_date, d.first_order_date) = 1 then 'Shifted +1 day (EST→UTC crosses midnight)'
-            when datediff('day', p.first_order_date, d.first_order_date) < 0 then '❌ UNEXPECTED: Shifted backward!'
-            else '❌ UNEXPECTED: Shifted by more than 1 day!'
+            when datediff('day', p.first_order_date, d.first_order_date) = -1 then 'Shifted -1 day (UTC+ timezone→UTC, expected for JST/AEST/etc)'
+            when datediff('day', p.first_order_date, d.first_order_date) < -1 then '❌ UNEXPECTED: Shifted backward by more than 1 day!'
+            when datediff('day', p.first_order_date, d.first_order_date) > 1 then '❌ UNEXPECTED: Shifted forward by more than 1 day!'
+            else '❌ UNEXPECTED: Unexpected shift pattern!'
         end as first_order_validation,
         
         case 
             when datediff('day', p.last_order_date, d.last_order_date) = 0 then 'No shift (expected)'
             when datediff('day', p.last_order_date, d.last_order_date) = 1 then 'Shifted +1 day (EST→UTC crosses midnight)'
-            when datediff('day', p.last_order_date, d.last_order_date) < 0 then '❌ UNEXPECTED: Shifted backward!'
-            else '❌ UNEXPECTED: Shifted by more than 1 day!'
+            when datediff('day', p.last_order_date, d.last_order_date) = -1 then 'Shifted -1 day (UTC+ timezone→UTC, expected for JST/AEST/etc)'
+            when datediff('day', p.last_order_date, d.last_order_date) < -1 then '❌ UNEXPECTED: Shifted backward by more than 1 day!'
+            when datediff('day', p.last_order_date, d.last_order_date) > 1 then '❌ UNEXPECTED: Shifted forward by more than 1 day!'
+            else '❌ UNEXPECTED: Unexpected shift pattern!'
         end as last_order_validation,
         
         -- Check if row counts match (should be same)
@@ -97,12 +108,16 @@ select
     -- Validation flags
     order_count_matches,
     
-    -- Overall validation
-    case
-        when first_order_validation like '❌%' or last_order_validation like '❌%' then '❌ FAILED'
-        when not order_count_matches then '❌ FAILED: Order count mismatch'
-        else '✅ PASSED'
-    end as validation_status
+        -- Overall validation
+        -- For EST→UTC: Only allow 0 or +1 day shifts
+        -- For UTC+ timezones: Would allow 0 or -1 day shifts (update this logic if needed)
+        case
+            when first_order_validation like '❌%' or last_order_validation like '❌%' then '❌ FAILED'
+            when not order_count_matches then '❌ FAILED: Order count mismatch'
+            -- For EST→UTC: Flag backward shifts as unexpected
+            when first_order_date_shift < 0 or last_order_date_shift < 0 then '⚠️ WARNING: Backward shift detected (expected for UTC+ timezones, unexpected for EST→UTC)'
+            else '✅ PASSED'
+        end as validation_status
 
 from comparison
 

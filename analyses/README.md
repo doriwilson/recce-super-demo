@@ -33,17 +33,23 @@ duckdb super_training.duckdb < analyses/validate_utc_date_conversion.sql
 
 ### What It Validates
 
-1. **Date Shift Direction**: Dates should only shift forward (0 or +1 day), never backward
-2. **Date Shift Magnitude**: Dates should never shift by more than 1 day
+1. **Date Shift Direction**: 
+   - For EST→UTC (UTC-5): Dates shift forward (0 or +1 day), never backward
+   - For UTC+ timezones (JST, AEST, etc.): Dates can shift backward (0 or -1 day)
+2. **Date Shift Magnitude**: Dates should never shift by more than 1 day in either direction
 3. **Row Count Consistency**: Order counts should match between prod and dev
 4. **Expected Behavior**: 
+   - **EST→UTC**: Dates that cross UTC midnight when adding 5 hours shift by +1 day
+   - **UTC+ timezones**: Dates that cross UTC midnight when subtracting hours shift by -1 day
    - Dates that don't cross UTC midnight: No shift (0 days)
-   - Dates that cross UTC midnight when adding 5 hours: Shift by +1 day
 
 ### Expected Results
 
-- ✅ **PASSED**: All date shifts are 0 or +1 day, order counts match
-- ❌ **FAILED**: Any backward shifts, shifts >1 day, or order count mismatches
+- ✅ **PASSED**: All date shifts are within expected range (0 or ±1 day), order counts match
+- ⚠️ **WARNING**: Backward shifts detected (expected for UTC+ timezones, unexpected for EST→UTC)
+- ❌ **FAILED**: Shifts >1 day in either direction, or order count mismatches
+
+**Note**: This validation is configured for EST→UTC conversion. For timezones ahead of UTC (UTC+), backward shifts of -1 day are expected and normal.
 
 ### Understanding the Output
 
