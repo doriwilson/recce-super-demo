@@ -81,7 +81,7 @@ See [QUICK_START.md](./QUICK_START.md) for how to run each PR.
 |------------------|-------------------|
 | Incremental filter change | Extending channel filters (Google → Kayak, Trivago) |
 | Model rename | Refactoring staging layer for new channels |
-| Timestamp logic | Timezone standardization across channels |
+| UTC date conversion | Timezone standardization across channels |
 
 See [`.github/validation-checklist.md`](./.github/validation-checklist.md) for a reusable template.
 
