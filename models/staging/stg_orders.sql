@@ -17,8 +17,9 @@ renamed as (
         id as order_id,
         user_id as customer_id,
         -- PR #3: Convert order_date from EST to UTC date
-        -- Treat date as EST midnight, convert to UTC, then extract date
-        date(timestamp(order_date) + interval '5 hours') as order_date,
+        -- Convert DATE to TIMESTAMP at EST timezone (America/New_York), then to UTC, then extract date
+        -- This properly handles timezone conversion using DuckDB's AT TIME ZONE syntax
+        date((order_date::TIMESTAMP AT TIME ZONE 'America/New_York') AT TIME ZONE 'UTC') as order_date,
         status
     from source
 )

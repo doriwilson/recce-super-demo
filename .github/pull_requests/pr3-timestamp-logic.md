@@ -157,10 +157,13 @@ In your actual project, this pattern applies when:
 ## Technical Details
 
 The UTC date conversion in this PR:
-- Assumes source dates are in EST timezone
-- Converts to UTC by treating date as EST midnight, adding 5 hours, then extracting the date
-- Uses DuckDB's `timestamp` and `date` functions
-- In production, you'd use your warehouse's timezone functions (e.g., Snowflake's `CONVERT_TIMEZONE`)
+- Assumes source dates are in EST timezone (America/New_York)
+- Converts to UTC using DuckDB's `AT TIME ZONE` syntax:
+  - Converts DATE to TIMESTAMP at EST timezone
+  - Converts to UTC timezone
+  - Extracts the date
+- Uses DuckDB's native timezone support (`AT TIME ZONE`)
+- In production, you'd use similar timezone functions (e.g., Snowflake's `CONVERT_TIMEZONE`, PostgreSQL's `AT TIME ZONE`)
 
 ## Edge Cases to Consider
 
