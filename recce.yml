@@ -10,7 +10,7 @@ checks:
   description: Check the schema diff for all nodes.
   type: schema_diff
 - name: Customer Orders UTC Date Validation
-  description: Validates UTC date conversion in customer_orders. Automatically runs when customer_orders or its upstream dependencies change. Returns date columns - Recce compares base vs target and shows shifts. Validate that shifts are only 0 or ±1 day (JST→UTC: backward shifts of -1 day are expected).
+  description: "Validates UTC date conversion in customer_orders. Automatically runs when customer_orders or its upstream dependencies change. Returns date columns - Recce compares base vs target and shows shifts. Validate that shifts are only 0 or ±1 day (JST→UTC: backward shifts of -1 day are expected)."
   type: query
   params:
     sql_template: |
