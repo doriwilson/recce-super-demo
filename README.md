@@ -27,13 +27,13 @@ This training addresses three critical validation scenarios:
 **See**: [PR #1](./.github/pull_requests/pr1-incremental-filter.md)
 
 ### 2. Assessing Downstream Impact of Renaming Models
-**Scenario**: Refactoring model names & column name.
+**Scenario**: Refactoring model names  
 **Learn**: How Recce's Breaking Change Analysis surfaces all dependencies  
 **See**: [PR #2](./.github/pull_requests/pr2-model-rename.md)
 
-### 3. Validating Timestamp Logic Changes
-**Scenario**: Converting timezone handling (EST → UTC)  
-**Learn**: How Recce's Value Diff and Profile Diff validate timestamp transformations  
+### 3. Validating UTC Date Conversion
+**Scenario**: Converting dates from EST to UTC  
+**Learn**: How Recce's Value Diff and Profile Diff validate date conversions  
 **See**: [PR #3](./.github/pull_requests/pr3-timestamp-logic.md)
 
 ## How It Works
@@ -71,7 +71,7 @@ Three strategic pull requests, each demonstrating a different Recce validation p
 
 - **PR #1** (`pr1-incremental-filter`): Incremental model validation
 - **PR #2** (`pr2-model-rename`): Breaking change detection
-- **PR #3** (`pr3-timestamp-logic`): Timestamp/timezone validation
+- **PR #3** (`pr3-timestamp-logic`): UTC date conversion validation
 
 See [QUICK_START.md](./QUICK_START.md) for how to run each PR.
 
@@ -81,7 +81,7 @@ See [QUICK_START.md](./QUICK_START.md) for how to run each PR.
 |------------------|-------------------|
 | Incremental filter change | Extending channel filters (Google → Kayak, Trivago) |
 | Model rename | Refactoring staging layer for new channels |
-| Timestamp logic | Timezone standardization across channels |
+| UTC date conversion | Timezone standardization across channels |
 
 See [`.github/validation-checklist.md`](./.github/validation-checklist.md) for a reusable template.
 
