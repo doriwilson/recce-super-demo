@@ -9,13 +9,21 @@ checks:
 - name: Schema diff
   description: Check the schema diff for all nodes.
   type: schema_diff
-- name: Customer Orders Date Validation
-  description: Validate UTC date conversion in customer_orders date columns. Automatically runs when customer_orders or its upstream dependencies (like stg_orders) change. Focuses on first_order_date and last_order_date to ensure dates only shift 0 or +1 day from EST→UTC conversion.
-  type: value_diff
+- name: Customer Orders UTC Date Validation
+  description: Validates UTC date conversion in customer_orders. Automatically runs when customer_orders or its upstream dependencies change. Compares first_order_date and last_order_date between base and target - validate that shifts are only 0 or +1 day (EST→UTC conversion).
+  type: query
   params:
-    model: customer_orders
-    primary_key: customer_id
-    # This check will automatically run when:
-    # - customer_orders model is modified
-    # - Any upstream model (like stg_orders, orders) that affects customer_orders changes
-    # Recce will compare all columns, but you can focus on date columns in the UI
+    sql_template: |
+      select
+        customer_id,
+        first_order_date,
+        last_order_date,
+        order_count
+      from {{ ref('customer_orders') }}
+      order by customer_id
+    view_options:
+      primary_keys:
+        - customer_id
+  # This check automatically runs when customer_orders or upstream models change
+  # Recce will compare the date values between base and target
+  # In the Recce UI, verify that date shifts are only 0 or +1 day (expected UTC conversion)

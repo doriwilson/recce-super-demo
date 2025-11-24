@@ -95,12 +95,12 @@ dbt compile --select validate_utc_date_conversion
 # Then run the compiled SQL in DuckDB or Recce UI
 ```
 
-## Automatic Date Column Validation (Preset Check)
+## Automatic UTC Date Validation (Preset Check)
 
 Recce includes a **preset check** in `recce.yml` that automatically validates date columns in `customer_orders` whenever the model or its upstream dependencies change:
 
-**Preset Check: "Customer Orders Date Validation"**
-- **Type**: `value_diff`
+**Preset Check: "Customer Orders UTC Date Validation"**
+- **Type**: `query` (custom SQL)
 - **Model**: `customer_orders`
 - **Primary Key**: `customer_id`
 - **Focus**: `first_order_date` and `last_order_date` columns
@@ -110,14 +110,16 @@ Recce includes a **preset check** in `recce.yml` that automatically validates da
 
 **How it works:**
 1. When you run `recce server recce_state.json`, this check runs automatically
-2. It compares date values between `prod` and `dev` schemas
-3. Shows differences in the Recce UI
-4. You can filter to see only the date columns in the UI
+2. Recce executes the SQL query in both base (prod) and target (dev) environments
+3. Compares `first_order_date` and `last_order_date` values between environments
+4. Shows query diff results in the Recce UI
+5. **You validate**: Check that date shifts are only 0 or +1 day (expected from EST→UTC conversion)
 
 **To view results:**
 - Open Recce server: `recce server recce_state.json`
-- Navigate to "Preset Checks" → "Customer Orders Date Validation"
-- Review the value differences for `first_order_date` and `last_order_date`
+- Navigate to "Preset Checks" → "Customer Orders UTC Date Validation"
+- Review the query diff - compare `first_order_date` and `last_order_date` between base and target
+- **Validate**: Ensure all date shifts are 0 or +1 day (no backward shifts, no shifts >1 day)
 
 ## Custom SQL Validation Query (Advanced)
 
