@@ -102,7 +102,6 @@ See [`.github/validation-checklist.md`](./.github/validation-checklist.md) for a
 ## Resources
 
 - [Recce Documentation](https://docs.recce.dev)
-- [Recce Cloud Setup](.github/RECCE_CLOUD_SETUP.md) (optional)
 - [dbt Documentation](https://docs.getdbt.com)
 
 ## Support
