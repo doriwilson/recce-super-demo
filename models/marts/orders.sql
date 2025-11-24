@@ -16,7 +16,7 @@
 ) }}
 
 with orders as (
-    select * from {{ ref('stg_orders') }}
+    select * from {{ ref('staging_orders') }}
 ),
 
 customers as (
@@ -39,8 +39,6 @@ final as (
     from orders
     left join customers on orders.customer_id = customers.customer_id
     left join payments on orders.order_id = payments.order_id
-    -- PR #1: Added filter to expand from 'completed' to include 'shipped'
-    where orders.status in ('completed', 'shipped')
 )
 
 select * from final
