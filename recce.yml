@@ -10,15 +10,14 @@ checks:
   description: Check the schema diff for all nodes.
   type: schema_diff
 - name: Customer Orders UTC Date Validation
-  description: Validates UTC date conversion in customer_orders. Automatically runs when customer_orders or its upstream dependencies change. Recce compares first_order_date and last_order_date between base and target - validate that shifts are only 0 or ±1 day (JST→UTC conversion).
+  description: Validates UTC date conversion in customer_orders. Automatically runs when customer_orders or its upstream dependencies change. Returns date columns - Recce compares base vs target and shows shifts. Validate that shifts are only 0 or ±1 day (JST→UTC: backward shifts of -1 day are expected).
   type: query
   params:
     sql_template: |
-      -- This query returns date columns for comparison
-      -- Recce runs this in both base (prod) and target (dev) schemas
-      -- In the Recce UI diff view, check that date shifts are within expected bounds:
-      -- - For JST→UTC: dates can shift backward by 0 or 1 day (UTC+9 → UTC)
-      -- - Shifts >1 day in either direction indicate a problem
+      -- Returns date columns for Recce to compare between base (prod) and target (dev)
+      -- Recce will show the diff - check that date shifts are within expected bounds
+      -- Expected for JST→UTC: dates shift backward by 0 or 1 day (UTC+9 → UTC)
+      -- Example: 2018-01-02 JST → 2018-01-01 UTC (shift: -1 day)
       select
         customer_id,
         first_order_date,
@@ -29,7 +28,5 @@ checks:
     view_options:
       primary_keys:
         - customer_id
-  # This check automatically runs when customer_orders or upstream models change
-  # Recce will show the diff between base and target date values
-  # Validation: Check that first_order_date and last_order_date shifts are 0 or ±1 day
-  # For JST→UTC: backward shifts (-1 day) are expected when dates cross UTC midnight
+  # Validation: In Recce UI, check the diff shows date shifts of only 0 or ±1 day
+  # For JST→UTC conversion: backward shifts (-1 day) are expected and normal
