@@ -16,7 +16,7 @@ renamed as (
     select
         id as order_id,
         user_id as customer_id,
-        order_date,  -- <-- PR #3 will convert this to UTC
+        order_date,  -- <-- PR #3 will convert this from JST to UTC
         status
     from source
 )
