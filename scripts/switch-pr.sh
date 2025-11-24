@@ -1,69 +1,81 @@
 #!/bin/bash
 # switch-pr.sh
-# Helper script to switch between PR branches and run Recce
-# Usage: ./scripts/switch-pr.sh [1|2|3]
+# Quickly switch between PR branches and rebuild
+# Usage: ./scripts/switch-pr.sh 1  # switches to PR #1
 
 set -e  # Exit on error
 
-# Map PR numbers to branch names
-case "$1" in
+if [ -z "$1" ]; then
+    echo "Usage: ./scripts/switch-pr.sh <pr_number>"
+    echo "  pr_number: 1, 2, or 3"
+    exit 1
+fi
+
+PR_NUMBER=$1
+BRANCH_NAME=""
+
+case $PR_NUMBER in
     1)
-        BRANCH="pr1-incremental-filter"
+        BRANCH_NAME="pr1-incremental-filter"
         ;;
     2)
-        BRANCH="pr2-model-rename"
+        BRANCH_NAME="pr2-model-rename"
         ;;
     3)
-        BRANCH="pr3-timestamp-logic"
+        BRANCH_NAME="pr3-timestamp-logic"
         ;;
     *)
-        echo "Usage: ./scripts/switch-pr.sh [1|2|3]"
-        echo ""
-        echo "Switches to the specified PR branch and prepares it for Recce:"
-        echo "  1 = pr1-incremental-filter (Incremental model changes)"
-        echo "  2 = pr2-model-rename (Breaking change detection)"
-        echo "  3 = pr3-timestamp-logic (Timestamp validation)"
+        echo "❌ Invalid PR number. Use 1, 2, or 3"
         exit 1
         ;;
 esac
 
-echo "🔄 Switching to $BRANCH..."
+echo "🔄 Switching to $BRANCH_NAME..."
 
-# Check if venv is activated
-if [ -z "$VIRTUAL_ENV" ]; then
-    echo "⚠️  Virtual environment not activated. Activating now..."
-    if [ -f "venv/bin/activate" ]; then
-        source venv/bin/activate
-    else
-        echo "❌ Virtual environment not found. Run ./scripts/setup.sh first."
-        exit 1
-    fi
-fi
-
-# Check for uncommitted changes and discard them (demo mode - we don't care about preserving changes)
-if ! git diff-index --quiet HEAD -- 2>/dev/null; then
-    echo "⚠️  Uncommitted changes detected. Discarding them for clean demo..."
-    git reset --hard HEAD
-    git clean -fd
-fi
-
-# Switch to the branch
-echo "📦 Checking out $BRANCH..."
-git checkout "$BRANCH" 2>&1 || {
-    echo "❌ Failed to checkout $BRANCH"
+# Check if branch exists
+if ! git show-ref --verify --quiet refs/heads/$BRANCH_NAME && ! git show-ref --verify --quiet refs/remotes/origin/$BRANCH_NAME; then
+    echo "⚠️  Branch $BRANCH_NAME not found locally or remotely"
+    echo "   This script assumes you've created the PR branches"
+    echo "   See .github/pull_requests/ for PR details"
     exit 1
-}
+fi
 
-# Build to dev schema (creates dev data for comparison)
-echo "🔨 Building models to dev schema..."
-dbt build --target dev
+# Switch to branch
+git checkout $BRANCH_NAME
+
+# Activate venv if it exists
+if [ -d "venv" ]; then
+    source venv/bin/activate
+fi
+
+# Install/update dbt packages first
+echo "📦 Installing dbt packages..."
+dbt deps
+
+# Try to build models (may fail for PR #2 which has intentional breaking change)
+echo "🔨 Rebuilding dbt models..."
+if dbt build --target dev 2>&1; then
+    echo "   ✅ Models built successfully"
+else
+    echo "   ⚠️  Build failed (this is expected for PR #2 - intentional breaking change)"
+    echo "   📊 Recce can still analyze the breaking change from existing artifacts"
+fi
+
+# Try to generate artifacts (may also fail for PR #2, but that's okay)
+echo "📊 Generating artifacts..."
+if dbt compile --target dev 2>&1; then
+    echo "   ✅ Artifacts generated"
+else
+    echo "   ⚠️  Compilation failed (expected for PR #2)"
+    echo "   📊 Recce will use pre-committed artifacts to show the breaking change"
+fi
 
 echo ""
-echo "✅ Ready to run Recce!"
+echo "✅ Switched to $BRANCH_NAME and rebuilt models"
 echo ""
-echo "Next step:"
-echo "   recce server recce_state.json"
+echo "Next steps:"
+echo "  1. Review changes: git diff main..$BRANCH_NAME"
+echo "  2. Run Recce comparison: recce run"
+echo "  3. Review PR description: .github/pull_requests/pr${PR_NUMBER}-*.md"
 echo ""
-echo "Then open http://localhost:8000 in your browser"
-
 

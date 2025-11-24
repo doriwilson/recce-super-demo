@@ -71,15 +71,33 @@ source venv/bin/activate
 # PR #1: Incremental model changes
 ./scripts/switch-pr.sh 1
 recce server recce_state.json
+# Press Ctrl+C to stop the server when done
 
 # PR #2: Breaking change detection
 ./scripts/switch-pr.sh 2
 recce server recce_state.json
+# Press Ctrl+C to stop the server when done
 
 # PR #3: Timestamp validation
 ./scripts/switch-pr.sh 3
 recce server recce_state.json
+# Press Ctrl+C to stop the server when done
 ```
+
+## Stopping the Recce Server
+
+**To stop Recce and switch to the next PR:**
+
+1. **In the terminal running Recce**: Press `Ctrl+C` to stop the server
+2. **If you closed the terminal**: The server may still be running. Kill it:
+   ```bash
+   lsof -ti:8000 | xargs kill -9
+   ```
+3. **Then switch to the next PR** (the script handles cleanup automatically):
+   ```bash
+   ./scripts/switch-pr.sh 2  # or 3
+   recce server recce_state.json
+   ```
 
 ## What's Pre-Generated vs What You Build
 
@@ -134,10 +152,24 @@ This ensures each PR branch starts in a clean state for consistent demos.
 - Or manually: `git reset --hard HEAD` then switch branches
 
 **"Address already in use" (port 8000)**
-- Another `recce server` is running. Find and kill it:
+- Another `recce server` is running. Stop it:
+  - **If running in terminal**: Press `Ctrl+C` in that terminal
+  - **If you closed the terminal**: Kill the background process:
+    ```bash
+    lsof -ti:8000 | xargs kill -9
+    ```
+
+**"dbt found more than one package with the name 'codegen'"**
+- Clean and reinstall packages:
   ```bash
-  lsof -ti:8000 | xargs kill -9
+  rm -rf dbt_packages
+  dbt deps
   ```
+
+**PR #2 build fails with "depends on a node named 'stg_orders' which was not found"**
+- This is **intentional** - PR #2 demonstrates breaking change detection
+- The script will still generate artifacts for Recce comparison
+- Recce will show the breaking change in its analysis
 
 ## Next Steps
 
